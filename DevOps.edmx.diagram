@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="a6d164f48dde42c7a6431f8783332797" Name="Diagram1">
+        <EntityTypeShape EntityType="DevOpsModel.BuildProject" Width="1.5" PointX="12.75" PointY="4.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DevOpsModel.EndUser" Width="1.5" PointX="5.25" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DevOpsModel.Organisation" Width="1.5" PointX="3" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DevOpsModel.Project" Width="1.5" PointX="10.5" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DevOpsModel.PublishedProject" Width="1.5" PointX="15" PointY="4.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="DevOpsModel.ReleaseManager" Width="1.5" PointX="8.25" PointY="4.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="DevOpsModel.ReleaseProject" Width="1.5" PointX="17.25" PointY="5" IsExpanded="true" />
+        <EntityTypeShape EntityType="DevOpsModel.Role" Width="1.5" PointX="0.75" PointY="5.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="DevOpsModel.SupportTicket" Width="1.5" PointX="5.25" PointY="11.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="DevOpsModel.User" Width="1.5" PointX="3" PointY="4.125" IsExpanded="true" />
+        <AssociationConnector Association="DevOpsModel.FK_BuildProjects_EndUser" ManuallyRouted="false" />
+        <AssociationConnector Association="DevOpsModel.FK_BuildProjects_Projects" ManuallyRouted="false" />
+        <AssociationConnector Association="DevOpsModel.FK_PublishedProjects_BuildProjects" ManuallyRouted="false" />
+        <AssociationConnector Association="DevOpsModel.FK_EndUser_Organisation" ManuallyRouted="false" />
+        <AssociationConnector Association="DevOpsModel.FK_EndUser_User" ManuallyRouted="false" />
+        <AssociationConnector Association="DevOpsModel.FK_PublishedProjects_EndUser" ManuallyRouted="false" />
+        <AssociationConnector Association="DevOpsModel.FK__ReleaseMa__Org_I__3E52440B" ManuallyRouted="false" />
+        <AssociationConnector Association="DevOpsModel.FK_Projects_ReleaseManager" ManuallyRouted="false" />
+        <AssociationConnector Association="DevOpsModel.FK_ReleaseProjects_PublishedProjects" ManuallyRouted="false" />
+        <AssociationConnector Association="DevOpsModel.FK_ReleaseManager_User" ManuallyRouted="false" />
+        <AssociationConnector Association="DevOpsModel.FK_ReleaseProjects_ReleaseManager" ManuallyRouted="false" />
+        <AssociationConnector Association="DevOpsModel.FK__User__Role_Id__398D8EEE" ManuallyRouted="false" />
+        <AssociationConnector Association="DevOpsModel.FK_SupportTickets_User" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
