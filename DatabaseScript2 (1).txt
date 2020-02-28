@@ -1,0 +1,247 @@
+DROP TABLE IF EXISTS [SupportTickets]
+DROP TABLE IF EXISTS [ErrorLog]
+DROP TABLE IF EXISTS [Permissions]
+DROP TABLE IF EXISTS [SubMenu]
+DROP TABLE IF EXISTS [MainMenu]
+DROP TABLE IF EXISTS [ReleaseProject]
+DROP TABLE IF EXISTS [ServerBuild]
+DROP TABLE IF EXISTS [BuildProject]
+DROP TABLE IF EXISTS [ServerCredentials]
+DROP TABLE IF EXISTS [ServerConfig]
+DROP TABLE IF EXISTS [Branch]
+DROP TABLE IF EXISTS [Project]
+DROP TABLE IF EXISTS [User]
+DROP TABLE IF EXISTS [EmailMaster]
+DROP TABLE IF EXISTS [Organisation]
+DROP TABLE IF EXISTS [Role]
+
+CREATE TABLE [Role](
+	[RoleId] TINYINT IDENTITY(1,1), 
+	[RoleName] VARCHAR(20) NOT NULL
+
+	CONSTRAINT [PK_Role_RoleId] PRIMARY KEY([RoleId]) 
+	);
+
+GO
+
+CREATE TABLE [Organisation](
+	[OrganisationId] INT IDENTITY(1,1),
+	[Name] NVARCHAR(50) NOT NULL,
+	[Address] NVARCHAR(MAX), 
+	[Nationality] VARCHAR(50),
+	[Type] VARCHAR(20)
+
+	CONSTRAINT [PK_Organisation_OrganisationId] PRIMARY KEY([OrganisationId])
+	);
+
+GO
+
+CREATE TABLE [User](
+	[UserId] INT IDENTITY(1,1),
+	[Name] NVARCHAR(50) NOT NULL,
+	[Address] NVARCHAR(MAX), 
+	[Nationality] VARCHAR(50),
+	[Phone] VARCHAR(12),
+	[Email] VARCHAR(50) NOT NULL,
+	[Password] NVARCHAR(MAX) NOT NULL,
+	[DateOfBirth] DATE,
+	[OrganisationId] INT,
+	[RoleId] TINYINT,
+	[RegistrationDate] DATE NOT NULL
+
+	CONSTRAINT [PK_User_UserId] PRIMARY KEY([UserId]),
+	CONSTRAINT [FK_Role_User_RoleId] FOREIGN KEY([RoleId]) REFERENCES [Role]([RoleId]),
+	CONSTRAINT [FK_Organisation_User_OrganisationId] FOREIGN KEY([OrganisationId]) REFERENCES [Organisation]([OrganisationId])
+	);
+
+GO
+
+CREATE TABLE [SupportTickets](
+	[TicketId] INT IDENTITY(1,1),
+	[GeneratedBy] INT,
+	[FixedBy] INT,
+	[Category] VARCHAR(50),
+	[Description] VARCHAR(MAX),
+	[Status] VARCHAR(20) NOT NULL,
+	[GeneratedDate] DATETIME NOT NULL,
+	[FixedDate] DATETIME
+
+	CONSTRAINT [PK_SupportTickets_TicketId] PRIMARY KEY([TicketId]),
+	CONSTRAINT [FK_User_SupportTickets_GeneratedBy] FOREIGN KEY([GeneratedBy]) REFERENCES [User]([UserId]),
+	CONSTRAINT [FK_User_SupportTickets_FixedBy] FOREIGN KEY([FixedBy]) REFERENCES [User]([UserId]),
+	)
+
+GO
+
+CREATE TABLE [ServerConfig](
+	[ServerId] INT IDENTITY(1,1) NOT NULL,
+	[ServerName] VARCHAR(20) NOT NULL,
+	[IPAddress] NVARCHAR(16) NOT NULL,
+	[RAM] VARCHAR(10),
+	[Processer] VARCHAR(10),
+	[OS] VARCHAR(10),
+	[Version] NVARCHAR(20),
+	[OrganisationId] INT,
+
+	CONSTRAINT [PK_ServerConfig_ServerId] PRIMARY KEY([ServerId]),
+	CONSTRAINT [FK_Organisation_ServerConfig_OrganisationId] FOREIGN KEY([OrganisationId]) REFERENCES [Organisation]([OrganisationId])
+	);
+
+GO
+
+CREATE TABLE [ServerCredentials](
+	[ServerCredentialsId] INT IDENTITY(1,1) NOT NULL,
+	[ServerId] INT,
+	[HostName] NVARCHAR(MAX),
+	[Password] NVARCHAR(MAX),
+	[ConnectionString] NVARCHAR(MAX)
+
+	CONSTRAINT [PK_ServerCredentials_ServerCredentialsId] PRIMARY KEY([ServerCredentialsId]),
+	CONSTRAINT [FK_Server_ServerCredentials_ServerId] FOREIGN KEY([ServerId]) REFERENCES [ServerConfig]([ServerId]) 
+	);
+
+GO
+
+CREATE TABLE [Project](
+	[ProjectId] INT IDENTITY(1,1) NOT NULL,
+	[ProjectName] VARCHAR(50) NOT NULL,
+	[SolutionName] VARCHAR(50) NOT NULL,
+	[OrganisationId] INT,
+	[SourceURL] VARCHAR(MAX) NOT NULL,
+	[FileFormat] VARCHAR(MAX) NOT NULL,
+	[Status] VARCHAR(20) NOT NULL,
+	[Type] VARCHAR(20),
+	[Plateform] VARCHAR(50),
+	[CreatedBy] INT,
+	[LastModifiedBy] INT,
+	[CreatedDate] DATETIME NOT NULL,
+	[LastModifiedDate] DATETIME NOT NULL
+
+	CONSTRAINT [PK_Project_ProjectId] PRIMARY KEY([ProjectId]),
+	CONSTRAINT [FK_User_Project_CreatedBy] FOREIGN KEY([CreatedBy]) REFERENCES [User]([UserId]),
+	CONSTRAINT [FK_User_Project_LastModifiedBy] FOREIGN KEY([LastModifiedBy]) REFERENCES [User]([UserId]),
+	CONSTRAINT [FK_Organisation_Poeject_OrganisationId] FOREIGN KEY([OrganisationId]) REFERENCES [Organisation]([OrganisationId])
+	);
+
+GO
+
+CREATE TABLE [Branch](
+	[BranchId] INT IDENTITY(1,1),
+	[BranchName] VARCHAR(10),
+	[ProjectId] INT,
+	
+	CONSTRAINT [PK_Branch_BranchId] PRIMARY KEY([BranchId]),
+	CONSTRAINT [FK_Project_Branch_ProjectId] FOREIGN KEY([ProjectId]) REFERENCES [Project]([ProjectId])
+	)
+
+GO
+
+CREATE TABLE [BuildProject](
+	[BuildId] INT IDENTITY(1,1),
+	[ProjectId] INT,
+	[BuildBy] INT,
+	[Mejor_Version] TINYINT,
+	[Minor_Version] TINYINT,
+	[Build_Version] INT,
+	[DownloadURL] NVARCHAR(MAX),
+	[Status] VARCHAR(10),
+	[BuildDate] DATETIME NOT NULL,
+
+	CONSTRAINT [PK_BuildPorject_BuildId] PRIMARY KEY([BuildId]),
+	CONSTRAINT [FK_Project_BuildProject_ProjectId] FOREIGN KEY([ProjectId]) REFERENCES [Project]([ProjectId]),
+	CONSTRAINT [FK_User_BuildProject_BuildBy] FOREIGN KEY([BuildBy]) REFERENCES [User]([UserId])
+	)
+
+GO
+
+CREATE TABLE [ServerBuild](
+	[ServerBuildId] INT IDENTITY(1,1),
+	[BuildId] INT,
+	[ServerId] INT,
+	[PublishedBy] INT,
+	[Mejor_Version] TINYINT,
+	[Minor_Version] TINYINT,
+	[Build_Version] INT,
+	[PublishDate] DATETIME
+	
+	CONSTRAINT [PK_ServerBuild_ServerBuildId] PRIMARY KEY([ServerBuildId]),
+	CONSTRAINT [FK_BuildProject_ServerBuild_BuildId] FOREIGN KEY([BuildId]) REFERENCES [BuildProject]([BuildId]),
+	CONSTRAINT [FK_ServerConfig_ServerBuild_ServerId] FOREIGN KEY([ServerId]) REFERENCES [ServerConfig]([ServerId]),
+	CONSTRAINT [FK_User_ServerBuild_PublishedBy] FOREIGN KEY([PublishedBy]) REFERENCES [User]([UserId]),
+	)
+
+GO
+
+CREATE TABLE [ReleaseProject](
+	[ReleaseProjectId] INT IDENTITY(1,1),
+	[ServerBuildId] INT,
+	[ReleaseBy] INT,
+	[Mejor_Version] TINYINT,
+	[Minor_Version] TINYINT,
+	[Build_Version] INT,
+	[ReleaseDate] DATETIME
+	
+	CONSTRAINT [PK_ReleaseProject_ReleaseProjectId] PRIMARY KEY([ReleaseProjectId]),
+	CONSTRAINT [FK_ServerBuild_ReleaseProject_ServerBuildId] FOREIGN KEY([ServerBuildId]) REFERENCES [ServerBuild]([ServerBuildId]),
+	CONSTRAINT [FK_User_ReleaseProject_ReleaseBy] FOREIGN KEY([ReleaseBy]) REFERENCES [User]([UserId]),
+	)
+
+GO
+
+CREATE TABLE [MainMenu](
+	[MainMenuId] INT IDENTITY(1,1),
+	[MainMenuName] VARCHAR(20)
+	
+	CONSTRAINT [PK_MainMenu_MainMenuId] PRIMARY KEY([MainMenuId])
+	)
+
+GO
+
+CREATE TABLE [SubMenu](
+	[SubMenuId] INT IDENTITY(1,1),
+	[MainMenuId] INT,
+	[SubMenuName] VARCHAR(20)
+	
+	CONSTRAINT [PK_SubMenu_SubMenuId] PRIMARY KEY([SubMenuId]),
+	CONSTRAINT [FK_MainMenu_SubMneu_MainMenuId] FOREIGN KEY([MainMenuId]) REFERENCES [MainMenu]([MainMenuId])
+	)
+
+GO
+
+CREATE TABLE [Permissions](
+	[PermissionId] INT IDENTITY(1,1),
+	[RoleId] TINYINT,
+	[SubMenuId] INT,
+	[Read] BINARY,
+	[Write] BINARY,
+
+	CONSTRAINT [PK_Permissions_PermissionId] PRIMARY KEY([PermissionId]),
+	CONSTRAINT [FK_Role_Permissions_RoleId] FOREIGN KEY([RoleId]) REFERENCES [Role]([RoleId]),
+	CONSTRAINT [FK_SubMenu_Permissionsu_SubMenuId] FOREIGN KEY([SubMenuId]) REFERENCES [SubMenu]([SubMenuId])
+	)
+
+GO
+
+CREATE TABLE [ErrorLog](  
+    [ErrorId] uniqueidentifier NOT NULL,  
+    [Application] nvarchar(60) NOT NULL,   
+    [Host] nvarchar(50) NOT NULL,  
+    [Type] nvarchar(100) NOT NULL,  
+    [Source] nvarchar(60) NOT NULL,  
+    [Message] nvarchar(500) NOT NULL,  
+    [User] nvarchar(50) NOT NULL,  
+    [StatusCode] int NOT NULL,  
+    [TimeUtc] datetime NOT NULL,  
+    [Sequence] int IDENTITY(1, 1) NOT NULL  
+	)  
+
+GO
+
+CREATE TABLE [EmailMaster](
+	[EmailMasterId] INT IDENTITY(1,1),
+	[EmailId] VARCHAR(MAX),
+	[OrganisationId] INT
+	
+	CONSTRAINT [PK_EmailMaster_EmailMasterId] PRIMARY KEY([EmailMasterId]),
+	CONSTRAINT [FK_Organisation_EmailMaster_OrganisationId] FOREIGN KEY([OrganisationId]) REFERENCES [Organisation]([OrganisationId])
+	);
